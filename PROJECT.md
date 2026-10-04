@@ -7,7 +7,7 @@
 **Коды участников:** `M1`  
 **Статус ранней калибровки:** `черновик`
 
-**Документы проекта:** [требования безопасности](docs/security-requirements.md), [модель угроз](docs/threat-model.md), [AI_USAGE.md](AI_USAGE.md)
+**Документы проекта:** [требования безопасности](docs/security-requirements.md), [модель угроз](docs/threat-model.md), [проектные решения](docs/design-decisions.md), [AI_USAGE.md](AI_USAGE.md)
 
 ## 1. Назначение
 
