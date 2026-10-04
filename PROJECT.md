@@ -139,4 +139,25 @@ Support Desk принимает обращения пользователей о
 
 ## 10. Локальный запуск
 
-Раздел будет заполнен после появления запускаемой основы.
+**Требования к окружению:** .NET SDK 10.0; Windows или Linux; свободный порт 5080. Внешние сервисы и база данных для запуска основы не нужны.
+
+**Команды установки и запуска:**
+
+```text
+git clone https://github.com/taisiya18/support-desk-api.git
+cd support-desk-api
+dotnet run --project src/SupportDesk.Api
+```
+
+После запуска в консоли появляется строка `Now listening on: http://localhost:5080`. Остановка сервера: Ctrl+C.
+
+**Команда или запрос для проверки:** во втором терминале
+
+```text
+curl.exe http://localhost:5080/health    # Windows PowerShell
+curl http://localhost:5080/health        # Linux
+```
+
+**Ожидаемый результат:** ответ `200 OK` с телом `{"status":"ok"}`.
+
+Проверка подтверждает запуск основы и не подтверждает выполнение требований безопасности.
