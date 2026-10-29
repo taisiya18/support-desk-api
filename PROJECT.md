@@ -154,7 +154,20 @@ cd support-desk-api
 dotnet run --project src/SupportDesk.Api
 ```
 
-После запуска в консоли появляется строка `Now listening on: http://localhost:5080`. Остановка сервера: Ctrl+C.
+При первом запуске веб-API создает файл базы SQLite `supportdesk.db` рядом с проектом. Файл базы в репозиторий не попадает. После запуска в консоли появляется строка `Now listening on: http://localhost:5080`. Остановка сервера: Ctrl+C.
+
+**Начальные учебные учетные записи.** Логины, отображаемые имена, роли и пароли задаются вне репозитория, через секреты пользователя .NET или переменные окружения. В репозитории значений нет. Ключи: `SeedAccounts:<индекс>:Login`, `:DisplayName`, `:Role` (`User` или `Specialist`), `:Password`. Без них сервис запускается и `GET /health` отвечает, учетные записи не создаются.
+
+Пример через секреты пользователя (в папке проекта):
+
+```text
+dotnet user-secrets set "SeedAccounts:0:Login" "user1"
+dotnet user-secrets set "SeedAccounts:0:DisplayName" "Пользователь один"
+dotnet user-secrets set "SeedAccounts:0:Role" "User"
+dotnet user-secrets set "SeedAccounts:0:Password" "<пароль>"
+```
+
+Тот же набор можно задать переменными окружения вида `SeedAccounts__0__Login` (двойное подчеркивание).
 
 **Команда или запрос для проверки:** во втором терминале
 
