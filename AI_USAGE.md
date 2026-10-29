@@ -53,3 +53,12 @@
 - В проект вошло: «Уточнение после контрпримера» в D-03, «Сравнение способов» в D-01, уточнения SR-06 и T-07
 - Проверка человеком: сверила исходную формулировку D-03 в commit `7b815e9`; проверила, что уточнение после контрпримера и сравнение способов содержат все части из рубрики EK1; выбрала сокращенный вариант сравнения
 - Связанный результат: строка «Повышенный анализ» в [CONTRIBUTIONS.md](CONTRIBUTIONS.md), commit `8e7a3d8`
+
+## Слой данных и хеширование паролей
+
+- Участник: M1
+- Задача: реализовать хранилище SQLite с учетными записями и сессиями, хеширование паролей и создание начальных учетных записей из конфигурации стенда
+- Использование ИИ: сверка версий пакетов и API .NET с документацией
+- В проект вошло: `src/SupportDesk.Api/Domain/Account.cs`, `Domain/Session.cs`, `Data/AppDbContext.cs`, `Data/AccountSeeder.cs`, `Security/PasswordHasher.cs`, `Configuration/SeedAccountInput.cs`; правки `Program.cs`, `SupportDesk.Api.csproj`, `appsettings.json`, раздел 10 `PROJECT.md`
+- Проверка человеком: собрала проект, после обновления `SQLitePCLRaw.bundle_e_sqlite3` до 2.1.12 сборка прошла без предупреждения NU1903; запустила сервис, EF Core создал таблицы `Accounts` и `Sessions` с уникальным индексом по логину; `GET /health` вернул `{"status":"ok"}`
+- Связанный результат: [src/SupportDesk.Api](src/SupportDesk.Api), commits `b866f8e`, `64a7617`
