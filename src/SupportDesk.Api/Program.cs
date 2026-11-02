@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using SupportDesk.Api.Data;
 using SupportDesk.Api.Endpoints;
@@ -21,6 +22,23 @@ using (var scope = app.Services.CreateScope())
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     AccountSeeder.Seed(db, builder.Configuration, logger);
 }
+
+// Общий ответ об ошибке без подробностей (D-03, «Поведение при сбое»).
+// Стоит первым, поэтому перехватывает исключение раньше страницы ошибок
+// для разработчика, которую ASP.NET Core включает в окружении Development.
+// Некорректный запрос клиента и внутренний сбой различаются кодом ответа.
+app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
+{
+    var feature = context.Features.Get<IExceptionHandlerFeature>();
+    bool clientFault = feature?.Error is BadHttpRequestException;
+
+    context.Response.StatusCode = clientFault
+        ? StatusCodes.Status400BadRequest
+        : StatusCodes.Status500InternalServerError;
+
+    await context.Response.WriteAsJsonAsync(
+        new { error = clientFault ? "bad request" : "internal error" });
+}));
 
 // Общая проверка сессии стоит после маршрутизации и до вызова обработчиков (D-01).
 app.UseRouting();
