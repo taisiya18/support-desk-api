@@ -62,3 +62,12 @@
 - В проект вошло: `src/SupportDesk.Api/Domain/Account.cs`, `Domain/Session.cs`, `Data/AppDbContext.cs`, `Data/AccountSeeder.cs`, `Security/PasswordHasher.cs`, `Configuration/SeedAccountInput.cs`; правки `Program.cs`, `SupportDesk.Api.csproj`, `appsettings.json`, раздел 10 `PROJECT.md`
 - Проверка человеком: собрала проект, после обновления `SQLitePCLRaw.bundle_e_sqlite3` до 2.1.12 сборка прошла без предупреждения NU1903; запустила сервис, EF Core создал таблицы `Accounts` и `Sessions` с уникальным индексом по логину; `GET /health` вернул `{"status":"ok"}`
 - Связанный результат: [src/SupportDesk.Api](src/SupportDesk.Api), commits `b866f8e`, `64a7617`
+
+## Вход и серверные сессии
+
+- Участник: M1
+- Задача: реализовать вход, создание серверной сессии и общую проверку сессии до вызова обработчиков
+- Использование ИИ: сверка API ASP.NET Core с документацией
+- В проект вошло: `src/SupportDesk.Api/Security/SessionManager.cs`, `Security/SessionAuthMiddleware.cs`, `Security/CurrentUser.cs`, `Endpoints/AuthEndpoints.cs`; правки `Program.cs`
+- Проверка человеком: запрос к `/me` без заголовка вернул 401; вход с неверным паролем и вход с несуществующим логином вернули одинаковый ответ 401 с текстом `invalid login or password`; успешный вход выдал идентификатор из 32 символов со сроком 8 часов; `/me` с этим идентификатором вернул отображаемое имя и роль без логина
+- Связанный результат: [src/SupportDesk.Api](src/SupportDesk.Api), commits `4bf43f6`, `55108b9`
