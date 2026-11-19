@@ -1,4 +1,4 @@
-# Поиск секретов. Запуск: .\scripts\scan-secrets.ps1 -Mode tree
+﻿# Поиск секретов. Запуск: .\scripts\scan-secrets.ps1 -Mode tree
 # tree смотрит текущие файлы, history смотрит все коммиты всех веток.
 param(
     [ValidateSet('tree', 'history')][string]$Mode = 'tree',

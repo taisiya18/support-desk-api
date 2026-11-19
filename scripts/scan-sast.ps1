@@ -1,4 +1,4 @@
-# Статический анализ кода. Запуск: .\scripts\scan-sast.ps1 -Label before
+﻿# Статический анализ кода. Запуск: .\scripts\scan-sast.ps1 -Label before
 # Label попадает в имя отчета и различает запуски до и после исправления.
 param(
     [ValidateSet('before', 'after')][string]$Label = 'before',
