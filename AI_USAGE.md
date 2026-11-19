@@ -89,3 +89,12 @@
 - В проект вошло: `tests/SupportDesk.Api.Tests/ApiFactory.cs`, `AuthTests.cs`, `ErrorResponseTests.cs`; правка `Program.cs`
 - Проверка человеком: запустила `dotnet test` дважды, оба раза 8 тестов из 8 прошли; в журнале видно, что некорректный запрос обработал `ExceptionHandlerMiddleware`, а не страница ошибок для разработчика; в запросах к базе пароль записывается строкой длиной 90 символов, идентификатор сессии строкой длиной 32 символа
 - Связанный результат: [tests/SupportDesk.Api.Tests](tests/SupportDesk.Api.Tests), commit `38a9409`
+
+## Непрерывная проверка сборки и тестов
+
+- Участник: M1
+- Задача: закрепить версии среды и пакетов и перенести прогон тестов на чистую машину
+- Использование ИИ: помощь с составом шагов workflow и порядком фиксации версии
+- В проект вошло: `global.json`, `Directory.Build.props`, `SupportDesk.slnx`, `.github/workflows/ci.yml`, раздел 11 в `PROJECT.md`
+- Проверка человеком: запустила пять команд локально, восстановление в режиме замка прошло, сборка Release собралась, 8 тестов из 8 прошли; открыла прогон в GitHub Actions, он зеленый, 1 минута 51 секунда; скачала артефакт, в `Evidence/run-info.txt` поле `checked_commit` совпадает с хешем последнего коммита; в архиве также лежат `TestResults/tests.trx` и папка `Publish`
+- Связанный результат: [.github/workflows/ci.yml](.github/workflows/ci.yml), commits `cd19d06`, `7791d91`
