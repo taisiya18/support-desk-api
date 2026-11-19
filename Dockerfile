@@ -13,7 +13,10 @@ COPY src/SupportDesk.Api/ src/SupportDesk.Api/
 RUN dotnet publish src/SupportDesk.Api/SupportDesk.Api.csproj \
     --configuration Release --no-restore --output /app -p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.12@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4 AS runtime
+# Среда выполнения обновлена с 10.0.12 до 10.0.15 по результатам проверки образа,
+# см. docs/scans/AVC-01.md. Версия внутри образа подтверждена командой
+# docker run --rm <образ> dotnet --list-runtimes
+FROM mcr.microsoft.com/dotnet/aspnet:10.0@sha256:12b1135f5f8b3c0a214f2a680ff2033dff4f684f445d6c697d9524ceeb303586 AS runtime
 WORKDIR /app
 COPY --from=build /app ./
 
