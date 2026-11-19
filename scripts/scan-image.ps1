@@ -41,8 +41,11 @@ if (-not (Test-Path $report)) { throw "Trivy не создал отчет, ко�
 $data = Get-Content -Raw -LiteralPath $report | ConvertFrom-Json
 $total = 0
 foreach ($result in @($data.Results)) {
-    $n = @($result.Vulnerabilities).Count
-    if ($n -gt 0) { Write-Host "$($result.Target): $n" }
+    # У цели без уязвимостей ключ Vulnerabilities отсутствует,
+    # а @($null).Count в PowerShell дает 1, поэтому проверяется явно.
+    $vulns = $result.Vulnerabilities
+    $n = if ($null -eq $vulns) { 0 } else { @($vulns).Count }
+    Write-Host "$($result.Target): $n"
     $total += $n
 }
 Write-Host "Trivy отработал. Уязвимостей уровня HIGH и CRITICAL: $total. Отчет: $report"
