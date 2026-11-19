@@ -4,6 +4,31 @@ using SupportDesk.Api.Data;
 using SupportDesk.Api.Endpoints;
 using SupportDesk.Api.Security;
 
+// Самопроверка контейнера. Тот же исполняемый файл обращается к /health,
+// поэтому в образ не нужно доп ставить curl или wget.
+if (args is ["--healthcheck"])
+{
+    using var probe = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+    string url = Environment.GetEnvironmentVariable("HEALTHCHECK_URL")
+        ?? "http://127.0.0.1:8080/health";
+
+    try
+    {
+        using HttpResponseMessage probeResponse = await probe.GetAsync(url);
+        Environment.ExitCode = probeResponse.IsSuccessStatusCode ? 0 : 1;
+    }
+    catch (HttpRequestException)
+    {
+        Environment.ExitCode = 1;
+    }
+    catch (TaskCanceledException)
+    {
+        Environment.ExitCode = 1;
+    }
+
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>

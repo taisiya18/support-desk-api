@@ -1,0 +1,16 @@
+.git
+.github
+.vs
+.vscode
+.idea
+**/bin
+**/obj
+TestResults
+Evidence
+Publish
+.env
+.env.*
+*.user
+*.db
+*.db-shm
+*.db-wal
