@@ -4,8 +4,8 @@
 param(
     [ValidateSet('before', 'after')][string]$Label = 'before',
     [string]$Image = 'support-desk-api:local',
-    # База уязвимостей не обновляется, чтобы запуски до и после сравнивались
-    # на одних и тех же данных. Снять флаг, когда нужна свежая база.
+    # База уязвимостей по умолчанию не обновляется, чтобы запуски до и после
+    # сравнивались на одних данных. Для свежей базы вызвать с -SkipDbUpdate:$false
     [bool]$SkipDbUpdate = $true
 )
 $ErrorActionPreference = 'Stop'
@@ -17,16 +17,27 @@ $name = "trivy-$Label.json"
 $report = Join-Path $outDir $name
 if (Test-Path $report) { Remove-Item -LiteralPath $report }
 
-$dbArgs = if ($SkipDbUpdate) { @('--skip-db-update') } else { @() }
+# Все аргументы собираются в один список. Строка 'HIGH,CRITICAL' взята в кавычки,
+# иначе PowerShell может разобрать запятую как разделитель элементов массива.
+$dockerArgs = @(
+    'run', '--rm',
+    '-v', '/var/run/docker.sock:/var/run/docker.sock',
+    '-v', 'trivy-cache:/root/.cache',
+    '--mount', "type=bind,source=$root,target=/repo",
+    $scanner,
+    'image', $Image,
+    '--scanners', 'vuln',
+    '--severity', 'HIGH,CRITICAL',
+    '--format', 'json',
+    '--output', "/repo/reports/local/$name"
+)
+if ($SkipDbUpdate) { $dockerArgs += '--skip-db-update' }
 
-& docker run --rm `
-    -v /var/run/docker.sock:/var/run/docker.sock `
-    -v trivy-cache:/root/.cache `
-    --mount "type=bind,source=$root,target=/repo" `
-    $scanner image $Image --scanners vuln --severity HIGH,CRITICAL @dbArgs `
-    --format json --output "/repo/reports/local/$name"
+Write-Host "docker $($dockerArgs -join ' ')"
+& docker @dockerArgs
 $code = $LASTEXITCODE
 if (-not (Test-Path $report)) { throw "Trivy не создал отчет, код выхода $code. Прочитай его вывод." }
+
 $data = Get-Content -Raw -LiteralPath $report | ConvertFrom-Json
 $total = 0
 foreach ($result in @($data.Results)) {

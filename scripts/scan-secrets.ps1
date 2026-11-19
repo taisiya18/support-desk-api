@@ -1,4 +1,4 @@
-﻿# Поиск секретов. Запуск: .\scripts\scan-secrets.ps1 -Mode tree
+﻿# Поиск секретов. Запуск: .\scripts\scan-secrets.ps1 -Mode tree -Label before
 # tree смотрит текущие файлы, history смотрит все коммиты всех веток.
 param(
     [ValidateSet('tree', 'history')][string]$Mode = 'tree',
@@ -13,14 +13,37 @@ $name = "gitleaks-$Mode-$Label.json"
 $report = Join-Path $outDir $name
 if (Test-Path $report) { Remove-Item -LiteralPath $report }
 
-$scanArgs = if ($Mode -eq 'history') { @('git', '/repo', '--log-opts=--all') } else { @('dir', '/repo') }
+# Все аргументы собираются в один список, чтобы разбор строки не зависел
+# от того, как PowerShell трактует запятые и раскрытие массивов.
+$dockerArgs = @(
+    'run', '--rm', '--network', 'none',
+    '--mount', "type=bind,source=$root,target=/repo",
+    $image
+)
+if ($Mode -eq 'history') {
+    $dockerArgs += @('git', '/repo', '--log-opts=--all')
+} else {
+    $dockerArgs += @('dir', '/repo')
+}
+$dockerArgs += @(
+    '--redact', '--no-banner',
+    '--report-format', 'json',
+    '--report-path', "/repo/reports/local/$name"
+)
 
-& docker run --rm --network none --mount "type=bind,source=$root,target=/repo" $image @scanArgs `
-    --redact --no-banner --report-format json --report-path "/repo/reports/local/$name"
+Write-Host "docker $($dockerArgs -join ' ')"
+& docker @dockerArgs
 $code = $LASTEXITCODE
 if (-not (Test-Path $report)) { throw "Gitleaks не создал отчет, код выхода $code. Прочитай его вывод." }
-# Windows PowerShell 5.1 разбирает пустой массив и одиночный объект по-разному.
-$data = @(Get-Content -Raw -LiteralPath $report | ConvertFrom-Json | Where-Object { $null -ne $_ })
+
+# Пустой отчет выглядит как [] и через конвейер проходит как один объект,
+# поэтому разбирается отдельно.
+$text = (Get-Content -Raw -LiteralPath $report)
+if ([string]::IsNullOrWhiteSpace($text) -or $text.Trim() -eq '[]') {
+    $data = @()
+} else {
+    $data = @($text | ConvertFrom-Json)
+}
 $count = $data.Count
 if (($code -eq 1 -and $count -gt 0) -or ($code -eq 0 -and $count -eq 0)) {
     Write-Host "Gitleaks отработал. Находок: $count, код выхода: $code. Отчет: $report"
