@@ -50,3 +50,8 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 app.MapAuthEndpoints();
 
 app.Run();
+
+// Делает класс Program доступным интеграционным тестам (WebApplicationFactory).
+public partial class Program
+{
+}
