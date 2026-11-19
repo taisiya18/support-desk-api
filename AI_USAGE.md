@@ -98,3 +98,12 @@
 - В проект вошло: `global.json`, `Directory.Build.props`, `SupportDesk.slnx`, `.github/workflows/ci.yml`, раздел 11 в `PROJECT.md`
 - Проверка человеком: запустила пять команд локально, восстановление в режиме замка прошло, сборка Release собралась, 8 тестов из 8 прошли; открыла прогон в GitHub Actions, он зеленый, 1 минута 51 секунда; скачала артефакт, в `Evidence/run-info.txt` поле `checked_commit` совпадает с хешем последнего коммита; в архиве также лежат `TestResults/tests.trx` и папка `Publish`
 - Связанный результат: [.github/workflows/ci.yml](.github/workflows/ci.yml), commits `cd19d06`, `7791d91`
+
+## Стенд запуска в контейнере
+
+- Участник: M1
+- Задача: собрать образ приложения и поднять стенд одной командой
+- Использование ИИ: подбор настроек стенда и объяснение, что в них влияет на безопасность
+- В проект вошло: `Dockerfile`, `.dockerignore`, `compose.yaml`, `.env.example`, режим `--healthcheck` в `Program.cs`, раздел 12 в `PROJECT.md`
+- Проверка человеком: собрала образ, контейнер ответил `{"status":"ok"}` на `/health`; `docker exec id` показал `uid=1654(app)`, те не root; в `/data` созданы файлы базы с владельцем `app`; `docker compose up -d --build` поднял стенд, `docker compose ps` показал `healthy`; в логах нет сообщений о пропущенных учетных записях; вход через `/auth/login` в контейнере вернул `200 OK` и идентификатор сессии со сроком 8 часов; перед коммитом убедилась, что `git status` не показывает `.env`
+- Связанный результат: [Dockerfile](Dockerfile), [compose.yaml](compose.yaml), commits `4b18ffc`, `4dd3962`
