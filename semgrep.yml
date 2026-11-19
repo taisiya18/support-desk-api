@@ -1,0 +1,59 @@
+# Правила под инварианты этого проекта. Общедоступные наборы Semgrep их не знают,
+# тк они следуют из SR и D, записанных в документах проекта.
+# Правила намеренно широкие: сигнал означает "разбери и обоснуй", а не "дефект".
+rules:
+  - id: endpoint-opts-out-of-session-check
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Обработчик выведен из общей проверки сессии. По D-01 доступ закрыт
+      по умолчанию, поэтому каждое исключение обосновывается в реестре находок.
+    metadata:
+      project-ref: D-01, SR-06
+    pattern: $ROUTE.AllowAnonymous()
+
+  - id: unpredictable-value-source
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Значение получено из источника, не предназначенного для выдачи пропусков.
+      По D-01 идентификатор сессии берется из криптографического генератора.
+      Проверь назначение значения и обоснуй, если оно не связано с доступом.
+    metadata:
+      project-ref: D-01, SR-06
+    pattern-either:
+      - pattern: Guid.NewGuid()
+      - pattern: new Random(...)
+
+  - id: ef-core-raw-sql
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      Запрос к базе составляется строкой в обход построителя EF Core.
+      Недоверенный ввод в такой строке приводит к внедрению SQL.
+      Используй параметры или LINQ.
+    metadata:
+      project-ref: SR-01, SR-02
+    pattern-either:
+      - pattern: $DB.FromSqlRaw(...)
+      - pattern: $DB.ExecuteSqlRaw(...)
+      - pattern: $DB.ExecuteSqlRawAsync(...)
+
+  - id: sensitive-value-in-log
+    languages: [csharp]
+    severity: WARNING
+    message: >-
+      В сообщение журнала попадает пароль, хеш или идентификатор сессии.
+      Журнал читают шире, чем базу, поэтому такие значения в него не пишутся.
+    metadata:
+      project-ref: SR-07, D-04
+    patterns:
+      - pattern-either:
+          - pattern: $LOG.LogInformation($MSG, ...)
+          - pattern: $LOG.LogWarning($MSG, ...)
+          - pattern: $LOG.LogError($MSG, ...)
+          - pattern: $LOG.LogDebug($MSG, ...)
+          - pattern: $LOG.LogTrace($MSG, ...)
+      - metavariable-regex:
+          metavariable: $MSG
+          regex: (?i)(password|passwordhash|sessionid|token|пароль)
