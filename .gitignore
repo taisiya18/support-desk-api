@@ -2,6 +2,11 @@
 bin/
 obj/
 
+# Отчеты и опубликованные файлы, создаются сборкой и CI
+TestResults/
+Evidence/
+Publish/
+
 # Файлы IDE
 .vs/
 .vscode/

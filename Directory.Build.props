@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Состав пакетов фиксируется в packages.lock.json, чтобы сборка
+         у меня и в CI восстанавливала одни и те же версии. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+</Project>
