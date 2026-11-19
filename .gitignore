@@ -17,3 +17,8 @@ Publish/
 *.db
 *.db-shm
 *.db-wal
+
+# Локальные значения переменных стенда
+.env
+.env.*
+!.env.example
